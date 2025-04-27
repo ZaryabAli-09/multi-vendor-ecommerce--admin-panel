@@ -10,6 +10,7 @@ import Settings from "./Settings";
 import Reviews from "./ReviewsManagement/Reviews";
 import AddCategories from "./AddCategories";
 import AdminSettings from "./AdminManagement";
+import SellerRequests from "./SellerRequests";
 
 const DashboardHome = () => {
   const location = useLocation();
@@ -48,6 +49,7 @@ const DashboardHome = () => {
           {tab === "settings" && <Settings />}
           {tab === "billing" && <Billing />}
           {tab === "admin-management" && <AdminSettings />}
+          {tab === "seller-requests" && <SellerRequests />}
         </div>
       </div>
     </div>
