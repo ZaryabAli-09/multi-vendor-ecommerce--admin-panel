@@ -27,7 +27,10 @@ const SupprtAndDisputes = () => {
     try {
       setLoading(true);
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/support&disputes/all`
+        `${import.meta.env.VITE_API_URL}/support&disputes/all`,
+        {
+          credentials: "include",
+        }
       ); // Adjust your API endpoint
       const data = await res.json();
       console.log(data);
@@ -62,6 +65,7 @@ const SupprtAndDisputes = () => {
           headers: {
             "Content-Type": "application/json",
           },
+          credentials: "include",
           body: JSON.stringify({ status: newStatus }),
         }
       );
