@@ -38,7 +38,7 @@ const ProductEditModal = ({
   const [selectedSubCategory, setSelectedSubCategory] = useState(null);
   const [selectedSubSubCategory, setSelectedSubSubCategory] = useState(null);
   const [variants, setVariants] = useState([
-    { size: "", color: "", stock: 0, price: 0, images: [] },
+    { size: "", color: "", discountedPrice: 0, stock: 0, price: 0, images: [] },
   ]);
   const [editModaldata, setEditModaldata] = useState({
     name: "",
@@ -149,19 +149,21 @@ const ProductEditModal = ({
         toast.error("At least 1 variant is required for a product.");
         return;
       }
-      variants.forEach((variants, index) => {
-        if (
-          !variants.stock ||
-          variants.stock === 0 ||
-          !variants.price ||
-          variants.price === 0 ||
-          !variants.color ||
-          variants.color === ""
-        ) {
-          toast.error("Stock, price and color are required for each variant.");
-          return;
-        }
+      const invalidVariant = variants.some((variant) => {
+        return (
+          !variant.stock ||
+          variant.stock < 0 ||
+          variant.discountedPrice < 0 ||
+          !variant.price ||
+          variant.price <= 0
+        );
       });
+
+      if (invalidVariant) {
+        toast.error("Invalid inputs in variants.");
+        return;
+      }
+
       if (
         !editModaldata ||
         editModaldata.name === "" ||
@@ -211,60 +213,9 @@ const ProductEditModal = ({
     }
   };
 
-  // Function to extract public_id from the Cloudinary URL
-  const extractPublicIdFromUrl = (url) => {
-    const match = url.match(/\/v\d+\/([^/]+)(?=\.[a-zA-Z]{3,4}$)/); // Match /v{version}/{public_id}.jpg
-    return match ? match[1] : null; // Return the public_id without the extension
-  };
-
-  const deleteImageFromCloudinary = async (public_id) => {
-    console.log(public_id);
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/product/deleteImg/${public_id}`,
-        {
-          method: "DELETE",
-
-          credentials: "include",
-        }
-      );
-      const result = await res.json();
-      if (!res.ok) {
-        throw new Error(result.message);
-      }
-      toast.success(result.message);
-      return result;
-    } catch (error) {
-      toast.error(error.message);
-    }
-  };
-
-  const handleAddVariant = () => {
-    setVariants([...variants, { size: "", color: "", stock: 0, price: 0 }]);
-  };
-
   const handleChange = (index, field, value) => {
     const updatedVariants = [...variants];
     updatedVariants[index][field] = value;
-    setVariants(updatedVariants);
-  };
-
-  const handleRemoveVariant = async (index) => {
-    const variantToRemove = variants[index];
-
-    // Delete images from Cloudinary
-    if (variantToRemove.images && variantToRemove.images.length > 0) {
-      for (const image of variantToRemove.images) {
-        if (image) {
-          // Extract the public ID from the URL
-          const publicId = extractPublicIdFromUrl(image);
-          // Send it to the delete function
-          await deleteImageFromCloudinary(publicId);
-        }
-      }
-    }
-
-    const updatedVariants = variants.filter((_, i) => i !== index);
     setVariants(updatedVariants);
   };
 
@@ -373,7 +324,7 @@ const ProductEditModal = ({
                   return (
                     <img
                       className="w-12 h-auto object-cover"
-                      src={img}
+                      src={img.url}
                       alt="product variant image"
                     />
                   );
@@ -384,6 +335,7 @@ const ProductEditModal = ({
                 <FormControl fullWidth>
                   <InputLabel>Size</InputLabel>
                   <Select
+                    disabled
                     label="Size"
                     value={variant.size}
                     onChange={(e) =>
@@ -403,6 +355,7 @@ const ProductEditModal = ({
                   <InputLabel>Color</InputLabel>
                   <Select
                     label="Color"
+                    disabled
                     value={variant.color}
                     onChange={(e) =>
                       handleChange(index, "color", e.target.value)
@@ -431,6 +384,16 @@ const ProductEditModal = ({
                   fullWidth
                 />
                 <TextField
+                  label="Discounted Price"
+                  variant="outlined"
+                  fullWidth
+                  type="number"
+                  value={variant.discountedPrice}
+                  onChange={(e) =>
+                    handleChange(index, "discountedPrice", e.target.value)
+                  }
+                />
+                <TextField
                   label="Stock"
                   type="number"
                   value={variant.stock}
@@ -438,24 +401,8 @@ const ProductEditModal = ({
                   fullWidth
                 />
               </div>
-              <Button
-                variant="outlined"
-                color="error"
-                onClick={() => handleRemoveVariant(index)}
-              >
-                Remove
-              </Button>
             </div>
           ))}
-
-          <Button
-            variant="contained"
-            color="primary"
-            size="small"
-            onClick={handleAddVariant}
-          >
-            Add Variant
-          </Button>
         </div>
       </DialogContent>
 

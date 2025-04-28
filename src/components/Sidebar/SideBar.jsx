@@ -78,7 +78,7 @@ const DASHBOARD_SIDEBAR_BOTTOM_LINKS = [
   },
   {
     label: "Support & Disputes",
-    path: "/support",
+    path: "/dashboard?tab=support",
     icon: <HiOutlineQuestionMarkCircle />,
   },
 ];
