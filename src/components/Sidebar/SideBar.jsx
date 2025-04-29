@@ -32,6 +32,11 @@ const DASHBOARD_SIDEBAR_LINKS = [
     icon: <HiOutlineViewGrid />,
   },
   {
+    label: "Brands",
+    path: "/dashboard?tab=brands",
+    icon: <HiOutlineCube />,
+  },
+  {
     label: "Categories",
     path: "/dashboard?tab=add-categories",
     icon: <HiOutlineCube />,

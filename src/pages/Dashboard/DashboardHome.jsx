@@ -12,6 +12,7 @@ import AddCategories from "./AddCategories";
 import AdminSettings from "./AdminManagement";
 import SellerRequests from "./SellerRequests";
 import SupprtAndDisputes from "./SupportAndDisputes";
+import BrandsManagement from "./BrandsManagement";
 
 const DashboardHome = () => {
   const location = useLocation();
@@ -52,6 +53,7 @@ const DashboardHome = () => {
           {tab === "admin-management" && <AdminSettings />}
           {tab === "seller-requests" && <SellerRequests />}
           {tab === "support" && <SupprtAndDisputes />}
+          {tab === "brands" && <BrandsManagement />}
         </div>
       </div>
     </div>
