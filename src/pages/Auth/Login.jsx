@@ -58,8 +58,7 @@ const Login = () => {
 
         <h1 className="text-2xl">Welcome to Logo Admin Panel!</h1>
         <p className="text-slate-500 text-xs my-1 md:text-sm">
-          Log in to manage your application, track your sales, and stay
-          connected with your customers worldwide.
+          Enter your credentials to access the dashboard.
         </p>
         <div>
           <label className="font-bold text-xs">Username</label>

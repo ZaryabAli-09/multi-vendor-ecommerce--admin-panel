@@ -5,6 +5,7 @@ import Login from "./pages/Auth/Login";
 import DashboardHome from "./pages/Dashboard/DashboardHome";
 import Product from "./pages/Dashboard/ProductManagement/Product";
 import AuthenticatedRoutes from "./components/RoutesWrappers/AuthenticatedRoutes";
+import AdminGateway from "./pages/Auth/AdminGatewayPage";
 
 const App = () => {
   return (
@@ -13,6 +14,7 @@ const App = () => {
       <Routes>
         {/* Auth Routes  */}
         <Route path="/login" element={<Login />} />
+        <Route path="/" element={<AdminGateway />} />
 
         {/* Dashboard Routes  */}
         <Route element={<AuthenticatedRoutes />}>
