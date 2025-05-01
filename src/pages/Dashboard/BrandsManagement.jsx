@@ -717,13 +717,13 @@ const BrandsManagement = () => {
                                       variant="body2"
                                       color="text.secondary"
                                     >
-                                      ₹
+                                      Rs.
                                       {product.variants?.[0]?.price ||
                                         product.price}
                                     </Typography>
                                     {product.variants?.[0]?.discountedPrice && (
                                       <Typography variant="body2" color="error">
-                                        ₹{product.variants[0].discountedPrice}
+                                        Rs.{product.variants[0].discountedPrice}
                                       </Typography>
                                     )}
                                   </div>
@@ -789,7 +789,7 @@ const BrandsManagement = () => {
                                       variant="body2"
                                       color="text.secondary"
                                     >
-                                      ₹
+                                      Rs.
                                       {product.variants?.[0]?.price ||
                                         product.price}
                                     </Typography>

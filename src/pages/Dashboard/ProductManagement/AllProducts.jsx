@@ -289,7 +289,20 @@ const AllProducts = () => {
                       </div>
                     ))}
                   </TableCell>
-                  <TableCell>${product?.variants[0]?.price}</TableCell>
+
+                  <TableCell>
+                    Rs.
+                    {product?.variants[0]?.discountedPrice ? (
+                      <>
+                        <span className="line-through opacity-40">
+                          {product?.variants[0]?.price}
+                        </span>{" "}
+                        {product?.variants[0]?.discountedPrice}
+                      </>
+                    ) : (
+                      product?.variants[0]?.price
+                    )}
+                  </TableCell>
                   <TableCell>{product.sold}</TableCell>
                   <TableCell className="md:flex md:space-x-1 space-y-1 md:space-y-0">
                     <Button

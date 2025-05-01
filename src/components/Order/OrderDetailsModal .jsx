@@ -155,7 +155,7 @@ const OrderDetailsModal = ({ open, onClose, orderId }) => {
         </TableContainer>
 
         <Box sx={{ mt: 2, display: "flex", justifyContent: "space-between" }}>
-          <Typography variant="body1">Total: ${order.totalAmount}</Typography>
+          <Typography variant="body1">Total: Rs.{order.totalAmount}</Typography>
           <Typography variant="body1">Status: {order.status}</Typography>
         </Box>
 
