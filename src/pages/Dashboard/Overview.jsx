@@ -6,6 +6,17 @@ import {
   Grid,
   CircularProgress,
   Alert,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Chip,
+  Avatar,
+  Card,
+  CardContent,
+  Divider,
 } from "@mui/material";
 import {
   BarChart,
@@ -21,39 +32,62 @@ import {
   Pie,
   Cell,
   ResponsiveContainer,
+  AreaChart,
+  Area,
 } from "recharts";
 
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#AF19FF"];
+import StarIcon from "@mui/icons-material/Star";
+import BusinessIcon from "@mui/icons-material/Business";
+import InventoryIcon from "@mui/icons-material/Inventory";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 
-const SellerDashboard = () => {
+const COLORS = [
+  "#0088FE",
+  "#00C49F",
+  "#FFBB28",
+  "#FF8042",
+  "#AF19FF",
+  "#FF4560",
+  "#775DD0",
+];
+
+const AdminDashboard = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [dateRange, setDateRange] = useState({
+    start: null,
+    end: null,
+  });
 
   useEffect(() => {
-    // Fetch data from the backend
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          `${
-            import.meta.env.VITE_API_URL
-          }/seller/dashboard-information/674a1d35b7c4360c86e36baa`
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch data");
-        }
-        const result = await response.json();
-        console.log(result);
-        setData(result);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+    fetchDashboardData();
+  }, [dateRange]);
 
-    fetchData();
-  }, []);
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      let url = `${import.meta.env.VITE_API_URL}/admin/app-insights`;
+
+      // Add date range if specified
+      const params = new URLSearchParams();
+      if (dateRange.start)
+        params.append("startDate", dateRange.start.toISOString());
+      if (dateRange.end) params.append("endDate", dateRange.end.toISOString());
+
+      if (params.toString()) url += `?${params.toString()}`;
+
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("Failed to fetch data");
+
+      const result = await response.json();
+      setData(result);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -81,238 +115,522 @@ const SellerDashboard = () => {
 
   return (
     <Box sx={{ flexGrow: 1, padding: 3, backgroundColor: "#f5f5f5" }}>
-      <Typography
-        variant="h4"
-        gutterBottom
-        sx={{ fontWeight: "bold", color: "#333" }}
-      >
-        Seller Dashboard
-      </Typography>
+      <h2 className="text-xl md:text-4xl mb-10"> Admin Dashboard Overview</h2>
 
       {/* Key Metrics Cards */}
       <Grid container spacing={3} sx={{ marginBottom: 4 }}>
         {[
           {
             title: "Total Revenue",
-            value: `$${data.totalSellerSales}`,
+            value: `Rs. ${data.totalRevenue.toLocaleString()}`,
+            change: "+12%",
             color: "#0088FE",
-          },
-          {
-            title: "Average Order Value",
-            value: `$${(data.totalSellerSales / data.totalSellerOrders).toFixed(
-              2
-            )}`,
-            color: "#00C49F",
+            icon: "💰",
           },
           {
             title: "Total Orders",
-            value: data.totalSellerOrders,
-            color: "#FFBB28",
+            value: data.totalOrders.toLocaleString(),
+            change: "+5%",
+            color: "#00C49F",
+            icon: "📦",
           },
           {
             title: "Total Products",
-            value: data.totalSellerProduct,
-            color: "#FF8042",
+            value: data.totalProducts.toLocaleString(),
+            change: "+3%",
+            color: "#FFBB28",
+            icon: "🛍️",
           },
           {
             title: "Total Customers",
-            value: data.totalSellerCustomers,
+            value: data.totalCustomers.toLocaleString(),
+            change: "+8%",
+            color: "#FF8042",
+            icon: "👥",
+          },
+          {
+            title: "Avg. Order Value",
+            value: `Rs. ${(data.totalRevenue / data.totalOrders).toFixed(0)}`,
+            change: "+4%",
             color: "#AF19FF",
+            icon: "💳",
           },
         ].map((metric, index) => (
-          <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
-            <Paper
+          <Grid item xs={12} sm={6} md={4} lg={2.4} key={index}>
+            <Card
               sx={{
-                padding: 3,
-                textAlign: "center",
+                height: "100%",
                 backgroundColor: metric.color,
                 color: "#fff",
                 borderRadius: 2,
                 boxShadow: 3,
-                height: "100%", // Ensure all cards have the same height
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
               }}
             >
-              <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                {metric.title}
-              </Typography>
-              <Typography variant="h4" sx={{ mt: 1 }}>
-                {metric.value}
-              </Typography>
-            </Paper>
+              <CardContent>
+                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                  <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
+                    {metric.title}
+                  </Typography>
+                  <Typography variant="h5">{metric.icon}</Typography>
+                </Box>
+                <Typography variant="h4" sx={{ mt: 1 }}>
+                  {metric.value}
+                </Typography>
+                <Chip
+                  label={metric.change}
+                  size="small"
+                  sx={{
+                    mt: 1,
+                    backgroundColor: "rgba(255,255,255,0.2)",
+                    color: "#fff",
+                  }}
+                />
+              </CardContent>
+            </Card>
           </Grid>
         ))}
       </Grid>
 
-      {/* Sales Overview */}
-      <Typography
-        variant="h5"
-        gutterBottom
-        sx={{ marginTop: 3, fontWeight: "bold", color: "#333" }}
-      >
-        Sales Overview
-      </Typography>
-      <Paper
-        sx={{ padding: 2, marginBottom: 4, borderRadius: 2, boxShadow: 3 }}
-      >
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={data.salesDataArray}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Line type="monotone" dataKey="sales" stroke="#8884d8" />
-          </LineChart>
-        </ResponsiveContainer>
-      </Paper>
+      {/* Revenue Chart - Monthly Only */}
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid item xs={12}>
+          <Paper
+            sx={{
+              p: 2,
+              borderRadius: 2,
+              boxShadow: 3,
+              height: "100%",
+              width: "100%",
+            }}
+          >
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
+              Monthly Revenue (PKR)
+            </Typography>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={data.revenueData.monthly}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+                <XAxis dataKey="period" />
+                <YAxis
+                  width={100} // Increased from default ~60px
+                  tick={{
+                    fontSize: 11, // Smaller text size
+                    fontFamily: "inherit", // Match your app's font
+                    fill: "#555", // Darker gray for better readability
+                  }}
+                  tickFormatter={(value) => `PKR ${value.toLocaleString()}`}
+                  tickMargin={10} // Additional spacing
+                />
+                <Tooltip
+                  formatter={(value) => [
+                    `PKR ${value.toLocaleString()}`,
+                    "Revenue",
+                  ]}
+                  labelFormatter={(label) => `Month: ${label}`}
+                />
+                <Bar
+                  dataKey="amount"
+                  fill="#8884d8"
+                  radius={[4, 4, 0, 0]}
+                  name="Revenue"
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </Paper>
+        </Grid>
+      </Grid>
 
-      {/* Product Performance */}
-      <Typography
-        variant="h5"
-        gutterBottom
-        sx={{ marginTop: 3, fontWeight: "bold", color: "#333" }}
-      >
-        Top Selling Products
-      </Typography>
-      <Paper
-        sx={{ padding: 2, marginBottom: 4, borderRadius: 2, boxShadow: 3 }}
-      >
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={data.productDataArray}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="sales" fill="#8884d8" />
-          </BarChart>
-        </ResponsiveContainer>
-      </Paper>
+      {/* Product Distribution */}
+      <h2 className="text-xl md:text-2xl mb-5 ml-5"> Product Analytics</h2>
 
-      {/* Customer Insights */}
-      <Typography
-        variant="h5"
-        gutterBottom
-        sx={{ marginTop: 3, fontWeight: "bold", color: "#333" }}
-      >
-        Product Category Insights
-      </Typography>
-      <Box
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        {/* Product Distribution by Category */}
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 2, borderRadius: 2, boxShadow: 3, height: "100%" }}>
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
+              Product Distribution by Category
+            </Typography>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={data.productDistributionByCategory}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  innerRadius={40} // Adds a donut hole for better aesthetics
+                  fill="#8884d8"
+                  dataKey="productCount"
+                  label={({ productCount }) => productCount} // Shows just the count number
+                  labelLine={false} // Removes connecting lines
+                  // Custom label styling
+                  labelStyle={{
+                    fontSize: "12px",
+                    fontWeight: "bold",
+                    fill: "#333",
+                  }}
+                >
+                  {data.productDistributionByCategory.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                      stroke="#fff" // Adds white border between segments
+                      strokeWidth={1}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip
+                  formatter={(value, name, props) => [
+                    `${value} products`,
+                    props.payload.category, // Shows the full category name on hover
+                  ]}
+                  contentStyle={{
+                    borderRadius: "8px",
+                    boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+                    border: "none",
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </Paper>
+        </Grid>
+
+        {/* Sales by Product Category */}
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 2, borderRadius: 2, boxShadow: 3, height: "100%" }}>
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
+              Sales by Product Category
+            </Typography>
+            <ResponsiveContainer width="100%" height={400}>
+              <BarChart
+                data={data.productSalesByCategory}
+                layout="vertical"
+                margin={{ top: 20, right: 20, left: 100, bottom: 20 }} // Adjusted margins
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis
+                  type="number"
+                  tick={{ fontSize: 11 }}
+                  tickFormatter={(value) => `${value}`} // Plain number display
+                />
+                <YAxis
+                  dataKey="name" // Changed from "category" to match your data structure
+                  type="category"
+                  width={150} // Increased for longer category names
+                  tick={{
+                    fontSize: 11,
+                    fontWeight: 500,
+                    fontFamily: "inherit",
+                  }}
+                />
+                <Tooltip
+                  formatter={(value) => [`${value} sold`, "Quantity"]}
+                  labelFormatter={(label) => `Category: ${label}`}
+                  contentStyle={{
+                    borderRadius: 6,
+                    padding: "8px 12px",
+                    fontSize: 12,
+                    border: "none",
+                    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                  }}
+                />
+                <Bar
+                  dataKey="value" // Changed from "totalSales" to match your data
+                  name="Products Sold"
+                  fill="#8884d8"
+                  radius={[0, 4, 4, 0]}
+                >
+                  {data.productSalesByCategory.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </Paper>
+        </Grid>
+      </Grid>
+
+      {/* Top Selling Products */}
+      <Paper
         sx={{
+          p: 2,
+          mb: 4,
+          borderRadius: 2,
+          boxShadow: 3,
+          height: "500px", // Fixed height
           display: "flex",
-          flexDirection: { xs: "column", md: "row" }, // Stack vertically on small screens, side by side on medium and larger screens
-          gap: 4, // Add spacing between the two charts
-          marginBottom: 4,
+          flexDirection: "column",
         }}
       >
-        {/* Product Sales Category Demographics */}
-        <Paper
+        <Typography
+          variant="h5"
           sx={{
-            padding: 2,
-            borderRadius: 2,
-            boxShadow: 3,
-            flex: 1, // Take up equal space
+            fontWeight: "bold",
+            mb: 2,
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
           }}
         >
-          <Typography
-            variant="h6"
-            gutterBottom
-            sx={{ fontWeight: "bold", color: "#333", textAlign: "center" }}
-          >
-            Sales by Product Category
-          </Typography>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={data.productCategoryDataArray}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-                label={false} // Disable labels
-              >
-                {data.productCategoryDataArray.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
-                  />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-        </Paper>
+          <StarIcon color="primary" /> {/* Added icon */}
+          Top Selling Products
+        </Typography>
 
-        {/* Total Product Category Demographics */}
-        <Paper
+        <TableContainer
           sx={{
-            padding: 2,
-            borderRadius: 2,
-            boxShadow: 3,
-            flex: 1, // Take up equal space
+            flex: 1,
+            overflow: "auto",
+            "&::-webkit-scrollbar": {
+              width: "6px",
+            },
+            "&::-webkit-scrollbar-thumb": {
+              backgroundColor: "#8884d8",
+              borderRadius: "3px",
+            },
           }}
         >
-          <Typography
-            variant="h6"
-            gutterBottom
-            sx={{ fontWeight: "bold", color: "#333", textAlign: "center" }}
-          >
-            Product Distribution by Category
-          </Typography>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={data.totalSellerProductCategories}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-                label={false} // Disable labels
-              >
-                {data.totalSellerProductCategories.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
-                  />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-        </Paper>
-      </Box>
+          <Table stickyHeader>
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{ fontWeight: "bold" }}>Product</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Brand</TableCell>
+                <TableCell align="right" sx={{ fontWeight: "bold" }}>
+                  Units Sold
+                </TableCell>
+                <TableCell align="right" sx={{ fontWeight: "bold" }}>
+                  Revenue
+                </TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {data.topSellingProducts.map((product) => (
+                <TableRow
+                  key={product.id}
+                  hover
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                >
+                  <TableCell>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                      <Avatar
+                        src={product.image}
+                        alt={product.name}
+                        sx={{
+                          width: 56,
+                          height: 56,
+                          borderRadius: "8px",
+                        }}
+                        variant="rounded"
+                      />
+                      <Typography variant="body1" noWrap>
+                        {product.name}
+                      </Typography>
+                    </Box>
+                  </TableCell>
+                  <TableCell>
+                    <Chip
+                      icon={<BusinessIcon fontSize="small" />}
+                      label={product.brand}
+                      sx={{
+                        backgroundColor: "rgba(255, 214, 0, 0.2)",
+                        color: "text.primary",
+                        fontWeight: "medium",
+                      }}
+                    />
+                  </TableCell>
+                  <TableCell align="right">
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "flex-end",
+                      }}
+                    >
+                      <Typography sx={{ mr: 1 }}>{product.sold}</Typography>
+                      <InventoryIcon fontSize="small" color="action" />
+                    </Box>
+                  </TableCell>
+                  <TableCell align="right">
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "flex-end",
+                      }}
+                    >
+                      <Typography sx={{ mr: 1, fontWeight: "medium" }}>
+                        Rs. {product.revenue.toLocaleString()}
+                      </Typography>
+                      <AttachMoneyIcon fontSize="small" color="success" />
+                    </Box>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
+      {/* Customer Insights */}
+      <h2 className="text-xl md:text-2xl mb-5 ml-5"> Customer Insights</h2>
+
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        {/* Customer Acquisition */}
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 2, borderRadius: 2, boxShadow: 3, height: "100%" }}>
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
+              Customer Acquisition
+            </Typography>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={data.customerAcquisition}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Line
+                  type="monotone"
+                  dataKey="newCustomers"
+                  stroke="#FF8042"
+                  strokeWidth={2}
+                  dot={{ r: 4 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </Paper>
+        </Grid>
+
+        {/* Customer Value */}
+        <Grid item xs={12} md={6}>
+          <Paper sx={{ p: 2, borderRadius: 2, boxShadow: 3, height: "100%" }}>
+            <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
+              Top Customers by Value
+            </Typography>
+            <TableContainer>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Customer</TableCell>
+                    <TableCell align="right">Orders</TableCell>
+                    <TableCell align="right">Total Spent</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {data.customerData.customerDetails
+                    .sort((a, b) => b.totalSpent - a.totalSpent)
+                    .slice(0, 5)
+                    .map((customer) => (
+                      <TableRow key={customer.id}>
+                        <TableCell>
+                          <Box sx={{ display: "flex", alignItems: "center" }}>
+                            <Avatar sx={{ mr: 2, bgcolor: COLORS[1] }}>
+                              {customer.name.charAt(0)}
+                            </Avatar>
+                            <Box>
+                              <Typography>{customer.name}</Typography>
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                              >
+                                {customer.email}
+                              </Typography>
+                            </Box>
+                          </Box>
+                        </TableCell>
+                        <TableCell align="right">
+                          {customer.orderCount}
+                        </TableCell>
+                        <TableCell align="right">
+                          Rs. {customer.totalSpent.toLocaleString()}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Paper>
+        </Grid>
+      </Grid>
 
       {/* Order Status */}
-      <Typography
-        variant="h5"
-        gutterBottom
-        sx={{ marginTop: 3, fontWeight: "bold", color: "#333" }}
-      >
-        Order Status
-      </Typography>
-      <Paper
-        sx={{ padding: 2, marginBottom: 4, borderRadius: 2, boxShadow: 3 }}
-      >
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={data.orderStatusDataArray}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="value" fill="#8884d8" />
-          </BarChart>
-        </ResponsiveContainer>
+      <Paper sx={{ p: 2, mb: 4, borderRadius: 2, boxShadow: 3 }}>
+        <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2 }}>
+          Order Status Overview
+        </Typography>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={data.orderStatusData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="count"
+                  label={({ status, percent }) =>
+                    `${status}: ${(percent * 100).toFixed(0)}%`
+                  }
+                >
+                  {data.orderStatusData.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                height: "100%",
+                justifyContent: "center",
+              }}
+            >
+              {data.orderStatusData.map((status, index) => (
+                <Box key={status.status} sx={{ mb: 2 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      mb: 1,
+                    }}
+                  >
+                    <Typography>
+                      <Chip
+                        label={status.status}
+                        size="small"
+                        sx={{
+                          backgroundColor: COLORS[index],
+                          color: "#fff",
+                          mr: 1,
+                        }}
+                      />
+                    </Typography>
+                    <Typography>{status.count} orders</Typography>
+                  </Box>
+                  <Box sx={{ width: "100%", bgcolor: "#eee", borderRadius: 4 }}>
+                    <Box
+                      sx={{
+                        width: `${(status.count / data.totalOrders) * 100}%`,
+                        height: 8,
+                        bgcolor: COLORS[index],
+                        borderRadius: 4,
+                      }}
+                    />
+                  </Box>
+                </Box>
+              ))}
+            </Box>
+          </Grid>
+        </Grid>
       </Paper>
     </Box>
   );
 };
 
-export default SellerDashboard;
+export default AdminDashboard;
