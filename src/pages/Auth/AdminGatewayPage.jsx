@@ -14,7 +14,7 @@ const AdminGateway = () => {
         Access the dashboard to manage vendors, orders, and platform settings.
       </p>
       <Link to="/login">
-        <Button className="bg-black text-white px-8 py-3 rounded-lg hover:bg-gray-800 hover:text-white transition">
+        <Button className="bg-black text-white px-8 py-3 rounded-lg hover:bg-gray-800 hover:text-black transition">
           Continue to LOGO Admin
         </Button>
       </Link>
