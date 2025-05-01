@@ -18,44 +18,47 @@ import {
   HiOutlineQuestionMarkCircle,
   HiOutlineShoppingCart,
   HiOutlineCube,
-  HiOutlineViewGrid,
+  HiOutlineChartBar,
+  HiOutlineCollection,
+  HiOutlineUsers,
+  HiOutlineCreditCard,
+  HiOutlineShieldCheck,
 } from "react-icons/hi";
-import { MdAdminPanelSettings } from "react-icons/md";
-
+import { MdAdminPanelSettings, MdDashboard } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../store/authReducers";
 
+// ===== Updated Sidebar Links =====
 const DASHBOARD_SIDEBAR_LINKS = [
   {
-    label: "App Insights",
+    label: "Dashboard",
     path: "/dashboard?tab=overview",
-    icon: <HiOutlineViewGrid />,
+    icon: <MdDashboard size={18} />,
   },
   {
     label: "Brands",
     path: "/dashboard?tab=brands",
-    icon: <HiOutlineCube />,
+    icon: <HiOutlineShieldCheck size={18} />, // More relevant icon
   },
   {
     label: "Categories",
     path: "/dashboard?tab=add-categories",
-    icon: <HiOutlineCube />,
+    icon: <HiOutlineCollection size={18} />,
   },
-
   {
     label: "Products",
     path: "/dashboard?tab=products",
-    icon: <HiOutlineCube />,
+    icon: <HiOutlineCube size={18} />,
   },
   {
     label: "Orders",
     path: "/dashboard?tab=orders",
-    icon: <HiOutlineShoppingCart />,
+    icon: <HiOutlineShoppingCart size={18} />,
   },
   {
     label: "Reviews",
     path: "/dashboard?tab=reviews",
-    icon: <HiOutlineShoppingCart />,
+    icon: <HiOutlineUsers size={18} />, // Represents user feedback
   },
 ];
 
@@ -63,93 +66,140 @@ const DASHBOARD_SIDEBAR_BOTTOM_LINKS = [
   {
     label: "Settings",
     path: "/dashboard?tab=settings",
-    icon: <HiOutlineCog />,
+    icon: <HiOutlineCog size={18} />,
   },
   {
-    label: "Admins Management",
+    label: "Admins",
     path: "/dashboard?tab=admin-management",
-    icon: <HiOutlineCog />,
+    icon: <HiOutlineUsers size={18} />, // Consistency with "Users"
   },
-
   {
-    label: "Store Billing Info",
+    label: "Billing",
     path: "/dashboard?tab=billing",
-    icon: <HiOutlineCog />,
+    icon: <HiOutlineCreditCard size={18} />,
   },
   {
-    label: "Seller Requests",
+    label: "Brands Requests",
     path: "/dashboard?tab=seller-requests",
-    icon: <HiOutlineQuestionMarkCircle />,
+    icon: <HiOutlineQuestionMarkCircle size={18} />,
   },
   {
-    label: "Support & Disputes",
+    label: "Support",
     path: "/dashboard?tab=support",
-    icon: <HiOutlineQuestionMarkCircle />,
+    icon: <HiOutlineQuestionMarkCircle size={18} />,
   },
 ];
 
 const Sidebar = ({ activeTab }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { loading } = useSelector((state) => state.auth);
-
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
   const handleLogout = async () => {
     dispatch(logout());
     navigate("/login");
   };
 
-  const toggleDrawer = () => {
-    setMobileOpen(!mobileOpen);
-  };
+  const toggleDrawer = () => setMobileOpen(!mobileOpen);
 
+  // ===== Styled Sidebar Content =====
   const sidebarContent = (
-    <Box className="w-60 bg-secondary text-primary-base h-full p-4 flex flex-col">
-      <div className="flex items-center gap-2 mb-6">
-        <MdAdminPanelSettings fontSize={24} />
-        <span className="font-bold text-sm">LOGO ADMIN PANEL</span>
+    <Box className="w-64 bg-white text-gray-800 h-full p-4 flex flex-col border-r border-gray-200">
+      {/* Brand Header */}
+      <div className="flex items-center gap-2 mb-8 p-2">
+        <MdAdminPanelSettings className="text-2xl text-black" />
+        <span className="font-bold text-lg">LOGO</span>
+        <span className="text-xs bg-black text-white px-2 py-1 rounded ml-auto">
+          ADMIN
+        </span>
       </div>
-      <List>
+
+      {/* Main Links */}
+      <List className="space-y-1">
         {DASHBOARD_SIDEBAR_LINKS.map((link) => (
-          <ListItem key={link.label} disablePadding>
+          <ListItem key={link.label} disablePadding className="mb-1">
             <ListItemButton
               component={Link}
               to={link.path}
-              className={`rounded  ${
-                activeTab === link.path ? "bg-gray-300" : "hover:bg-primary"
+              className={`rounded-lg px-3 py-2 ${
+                activeTab === link.path
+                  ? "bg-primary text-white"
+                  : "hover:bg-gray-100"
               }`}
             >
-              <ListItemIcon>{link.icon}</ListItemIcon>
-              <ListItemText primary={link.label} />
+              <ListItemIcon className="min-w-[32px]">
+                <span
+                  className={
+                    activeTab === link.path ? "text-blue-400" : "text-gray-600"
+                  }
+                >
+                  {link.icon}
+                </span>
+              </ListItemIcon>
+              <ListItemText
+                primary={link.label}
+                primaryTypographyProps={{
+                  fontSize: "0.875rem",
+                  fontWeight: 500,
+                }}
+              />
             </ListItemButton>
           </ListItem>
         ))}
       </List>
-      <List className="mt-auto border-t pt-2">
+
+      {/* Bottom Links (Settings/Logout) */}
+      <List className="mt-auto border-t border-gray-200 pt-2 space-y-1">
         {DASHBOARD_SIDEBAR_BOTTOM_LINKS.map((link) => (
-          <ListItem key={link.label} disablePadding>
+          <ListItem key={link.label} disablePadding className="mb-1">
             <ListItemButton
               component={Link}
               to={link.path}
-              className={`rounded ${
-                activeTab === link.path ? "bg-gray-300" : "hover:bg-primary"
+              className={`rounded-lg px-3 py-2 ${
+                activeTab === link.path
+                  ? "bg-primary text-white"
+                  : "hover:bg-gray-100"
               }`}
             >
-              <ListItemIcon>{link.icon}</ListItemIcon>
-              <ListItemText primary={link.label} />
+              <ListItemIcon className="min-w-[32px]">
+                <span
+                  className={
+                    activeTab === link.path ? "text-blue-400" : "text-gray-600"
+                  }
+                >
+                  {link.icon}
+                </span>
+              </ListItemIcon>
+              <ListItemText
+                primary={link.label}
+                primaryTypographyProps={{
+                  fontSize: "0.875rem",
+                  fontWeight: 500,
+                }}
+              />
             </ListItemButton>
           </ListItem>
         ))}
         <ListItem disablePadding>
-          <ListItemButton className="text-red-500 hover:bg-primary rounded">
-            <ListItemIcon>
-              <HiOutlineLogout />
+          <ListItemButton
+            onClick={handleLogout}
+            className="rounded-lg px-3 py-2 text-red-500 hover:bg-red-50"
+          >
+            <ListItemIcon className="min-w-[32px]">
+              {loading ? (
+                <CircularProgress size={20} color="error" />
+              ) : (
+                <HiOutlineLogout className="text-red-500" size={18} />
+              )}
             </ListItemIcon>
-            {loading ? (
-              <CircularProgress size={24} />
-            ) : (
-              <ListItemText onClick={handleLogout} primary="Logout" />
-            )}
+            <ListItemText
+              primary="Logout"
+              primaryTypographyProps={{
+                fontSize: "0.875rem",
+                fontWeight: 500,
+              }}
+            />
           </ListItemButton>
         </ListItem>
       </List>
@@ -158,20 +208,23 @@ const Sidebar = ({ activeTab }) => {
 
   return (
     <>
-      {/* Mobile Menu Button */}
-      <div className="md:hidden p-2 border">
-        <IconButton onClick={toggleDrawer}>
-          <HiOutlineMenu className="text-black" />
+      {/* Mobile Toggle Button */}
+      <div className="md:hidden p-4">
+        <IconButton onClick={toggleDrawer} className="text-black">
+          <HiOutlineMenu size={24} />
         </IconButton>
       </div>
 
-      {/* Sidebar for Desktop */}
-      <div className="hidden md:flex border-r w-64 fixed overflow-y-auto bg-secondary h-full">
-        {sidebarContent}
-      </div>
+      {/* Desktop Sidebar */}
+      <div className="hidden md:flex fixed h-full">{sidebarContent}</div>
 
-      {/* Sidebar for Mobile */}
-      <Drawer anchor={"left"} open={mobileOpen} onClose={toggleDrawer}>
+      {/* Mobile Drawer */}
+      <Drawer
+        anchor="left"
+        open={mobileOpen}
+        onClose={toggleDrawer}
+        PaperProps={{ style: { width: "256px" } }}
+      >
         {sidebarContent}
       </Drawer>
     </>

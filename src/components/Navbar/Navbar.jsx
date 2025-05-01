@@ -1,13 +1,7 @@
 import React, { useState } from "react";
-import { AiFillProfile, AiOutlineLogout } from "react-icons/ai";
-import {
-  Button,
-  Menu,
-  MenuItem,
-  CircularProgress,
-  IconButton,
-  Avatar,
-} from "@mui/material";
+import { AiOutlineLogout } from "react-icons/ai";
+import { HiOutlineMail } from "react-icons/hi";
+import { Menu, MenuItem } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../store/authReducers";
@@ -15,9 +9,8 @@ import { logout } from "../../store/authReducers";
 const Navbar = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
-
   const dispatch = useDispatch();
-  const { loading } = useSelector((state) => state.auth);
+  const { loading, user } = useSelector((state) => state.auth);
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -33,27 +26,32 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white border-b px-4 py-2 flex justify-end items-center">
-      <div>
-        {/* Profile Icon Button */}
-        <IconButton
-          onClick={handleMenuOpen}
-          className="h-10 w-10 rounded-full"
-          aria-controls="profile-menu"
-          aria-haspopup="true"
-        >
-          <Avatar className="text-2xl " />
-        </IconButton>
+    <nav className="bg-white border-b border-gray-200 px-4 py-2 flex justify-between items-center">
+      {/* Email display */}
+      <div className="flex items-center gap-2 text-sm text-gray-600">
+        <HiOutlineMail className="text-gray-500" />
+        <span>{user?.email || "Admin"}</span>
+      </div>
 
-        {/* Dropdown Menu */}
+      {/* Avatar and dropdown */}
+      <div className="relative">
+        <button
+          onClick={handleMenuOpen}
+          className="flex items-center justify-center w-8 h-8 rounded-full focus:outline-none"
+        >
+          <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center text-white text-sm font-medium">
+            {user?.email?.charAt(0).toUpperCase() || "A"}
+          </div>
+        </button>
+
         <Menu
-          id="profile-menu"
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
           onClose={handleMenuClose}
-          className="mt-2"
+          className="mt-1"
           PaperProps={{
-            className: "w-48 rounded-lg shadow-lg",
+            className:
+              "min-w-[120px] rounded-lg shadow-md border border-gray-200",
           }}
           transformOrigin={{
             vertical: "top",
@@ -63,24 +61,23 @@ const Navbar = () => {
             vertical: "bottom",
             horizontal: "right",
           }}
-          TransitionProps={{
-            timeout: 150,
-            enter: true,
-            exit: true,
-          }}
         >
-          {/* Logout Button */}
           <MenuItem
             onClick={handleLogout}
-            className="text-gray-700 hover:bg-gray-100"
+            className="text-sm py-1.5 px-3 text-gray-700 hover:bg-gray-100"
             disabled={loading}
           >
             {loading ? (
-              <CircularProgress size={20} className="mr-2" />
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-gray-400 border-t-black rounded-full animate-spin" />
+                <span>Logging out</span>
+              </div>
             ) : (
-              <AiOutlineLogout className="mr-2" />
+              <div className="flex items-center gap-2">
+                <AiOutlineLogout className="text-gray-600" />
+                <span>Logout</span>
+              </div>
             )}
-            Logout
           </MenuItem>
         </Menu>
       </div>

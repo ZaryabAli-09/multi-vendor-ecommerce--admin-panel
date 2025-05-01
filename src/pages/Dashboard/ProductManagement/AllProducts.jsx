@@ -204,10 +204,10 @@ const AllProducts = () => {
       </Box>
 
       <TableContainer className="p-4" component={Paper}>
-        <h2 className="text-xl md:text-2xl mb-6">Manage your products</h2>
+        <h2 className="text-xl md:text-2xl mb-6">Manage Products</h2>
 
         <Table>
-          <TableHead>
+          <TableHead className="bg-gray-100">
             <TableRow>
               <TableCell>#</TableCell>
               <TableCell>Image</TableCell>
@@ -247,7 +247,10 @@ const AllProducts = () => {
                     <Skeleton variant="text" />
                   </TableCell>
                   <TableCell>
-                    <Skeleton variant="rectangular" width={100} height={40} />
+                    <Skeleton variant="text" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton variant="rectangular" width={100} height={30} />
                   </TableCell>
                 </TableRow>
               ))
