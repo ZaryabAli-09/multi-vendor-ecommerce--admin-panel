@@ -1,169 +1,196 @@
-import { useState } from "react";
+import { Button } from "@mui/material";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
-function Product() {
-  const product = {
-    _id: "67ae3816104f4c0debc1b13d",
-    seller: "674a1d35b7c4360c86e36baa",
-    name: "t shirt",
-    description: "jgjhgjhghgjhgj",
-    slug: "t-shirt",
-    numReviews: 0,
-    sold: 0,
-    rating: 0,
-    countInStock: 29,
-    categories: [
-      "6719565189598c10e7a7dfde",
-      "671956aa29acfa9cf833d398",
-      "6719578629acfa9cf833d3ac",
-    ],
-    reviews: [],
-    variants: [
-      {
-        _id: "67ae3816104f4c0debc1b13e",
-        size: "M",
-        color: "#FF0000",
-        price: 1000,
-        discountedPrice: null,
-        stock: 5,
-        images: [
-          {
-            url: "https://res.cloudinary.com/dv4utklyo/image/upload/v1739471378/product-images/l3dbaaj5g1muaoli491g.jpg",
-            public_id: "product-images/cjqrwuqelhtl6zjjp8g5",
-            _id: "67ae3816104f4c0debc1b13f",
-          },
-        ],
-      },
-      {
-        _id: "67ae3816104f4c0debc1b140",
-        size: "S",
-        color: "#FF0000",
-        price: 900,
-        discountedPrice: null,
-        stock: 8,
-        images: [
-          {
-            url: "https://res.cloudinary.com/dv4utklyo/image/upload/v1739471378/product-images/l3dbaaj5g1muaoli491g.jpg",
-            public_id: "product-images/cjqrwuqelhtl6zjjp8g5",
-            _id: "67ae3816104f4c0debc1b141",
-          },
-        ],
-      },
-      {
-        _id: "67ae3816104f4c0debc1b142",
-        size: "M",
-        color: "#0000FF",
-        price: 2000,
-        discountedPrice: null,
-        stock: 10,
-        images: [
-          {
-            url: "https://res.cloudinary.com/dv4utklyo/image/upload/v1739471379/product-images/prczshs83mdlscwuibtu.jpg",
-            public_id: "product-images/vyzagud5nift3c2sdif1",
-            _id: "67ae3816104f4c0debc1b143",
-          },
-        ],
-      },
-      {
-        _id: "67ae3816104f4c0debc1b144",
-        size: "S",
-        color: "#0000FF",
-        price: 1990,
-        discountedPrice: null,
-        stock: 15,
-        images: [
-          {
-            url: "https://res.cloudinary.com/dv4utklyo/image/upload/v1739471379/product-images/prczshs83mdlscwuibtu.jpg",
-            public_id: "product-images/vyzagud5nift3c2sdif1",
-            _id: "67ae3816104f4c0debc1b145",
-          },
-        ],
-      },
-    ],
-    createdAt: "2025-02-13T18:21:10.108Z",
-    updatedAt: "2025-02-13T18:21:10.108Z",
-    __v: 0,
+function ProductDetail() {
+  const { productId } = useParams();
+  const [product, setProduct] = useState(null);
+  const [selectedVariant, setSelectedVariant] = useState(null);
+  const [displayedImgIndex, setDisplayedImgIndex] = useState(0);
+
+  // Fetch product data
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/product/single/${productId}`
+        );
+        const result = await response.json();
+        if (response.ok) {
+          setProduct(result.data);
+          setSelectedVariant(result.data.variants[0]);
+        }
+      } catch (error) {
+        console.error("Error fetching product:", error);
+      }
+    };
+
+    fetchProduct();
+  }, [productId]);
+
+  const handleVariantChange = (type, value) => {
+    const newVariant = product.variants.find((v) =>
+      type === "color"
+        ? v.color === value
+        : v.size === value && v.color === selectedVariant.color
+    );
+    if (newVariant) {
+      setSelectedVariant(newVariant);
+      setDisplayedImgIndex(0); // Reset to first image when variant changes
+    }
   };
-  const [selectedColor, setSelectedColor] = useState(product.variants[0].color);
-  const [selectedSize, setSelectedSize] = useState(product.variants[0].size);
 
-  // Filter variants based on selected color
-  const colorVariants = product.variants.filter(
-    (v) => v.color === selectedColor
-  );
-
-  // Find the variant matching both color & size
-  const selectedVariant =
-    colorVariants.find((v) => v.size === selectedSize) || colorVariants[0];
+  if (!product) return <div className="text-center py-20">Loading...</div>;
 
   return (
-    <div className="max-w-2xl mx-auto p-6 border rounded-lg shadow-lg bg-white">
-      <h1 className="text-2xl font-bold mb-4">{product.name}</h1>
-      <p className="text-gray-600">{product.description}</p>
-
-      {/* Display Images */}
-      <div className="mt-4">
-        <img
-          src={selectedVariant.images[0].url}
-          alt="Product"
-          className="w-full h-64 object-cover rounded-lg"
-        />
-      </div>
-
-      {/* Color Selection */}
-      <div className="mt-4 flex gap-2">
-        {Array.from(new Set(product?.variants.map((v) => v.color))).map(
-          (color) => (
-            <button
-              key={color}
-              className={`w-8 h-8 rounded-full border ${
-                selectedColor === color ? "ring-2 ring-black" : ""
-              }`}
-              style={{ backgroundColor: color }}
-              onClick={() => setSelectedColor(color)}
+    <main className="container mx-auto px-4 py-8 max-w-7xl">
+      {/* Breadcrumb Navigation */}
+      <button
+        className="absolute top-3 left-5 border p-2 rounded-md bg-gray-100 hover:bg-gray-200 transition duration-200"
+        onClick={() => window.history.back()}
+        variant="standard"
+      >
+        Go Back
+      </button>
+      <nav className="text-sm text-gray-600 mb-6 mt-5">
+        {product.categories.map((cat, i) => (
+          <span key={cat._id}>
+            {i > 0 && " / "}
+            {cat.name}
+          </span>
+        ))}
+      </nav>
+      <div className="flex flex-col lg:flex-row gap-8">
+        {/* Product Images - Mobile First */}
+        <div className="w-full lg:w-1/2">
+          {/* Main Image */}
+          <div className="mb-4 bg-gray-50 rounded-lg overflow-hidden">
+            <img
+              src={selectedVariant.images[displayedImgIndex]?.url}
+              alt={product.name}
+              className="w-full h-auto max-h-[500px] object-contain mx-auto"
             />
-          )
-        )}
-      </div>
+          </div>
 
-      {/* Size Selection */}
-      <div className="mt-4">
-        <label className="font-semibold">Size: </label>
-        <select
-          value={selectedSize}
-          onChange={(e) => setSelectedSize(e.target.value)}
-          className="ml-2 border p-1 rounded"
-        >
-          {colorVariants.map((variant) => (
-            <option key={variant.size} value={variant.size}>
-              {variant.size}
-            </option>
-          ))}
-        </select>
-      </div>
+          {/* Thumbnail Gallery */}
+          <div className="flex gap-2 overflow-x-auto py-2">
+            {selectedVariant.images.map((img, i) => (
+              <button
+                key={img._id}
+                onClick={() => setDisplayedImgIndex(i)}
+                className={`flex-shrink-0 w-16 h-16 border-2 rounded ${
+                  displayedImgIndex === i
+                    ? "border-black"
+                    : "border-transparent"
+                }`}
+              >
+                <img
+                  src={img.url}
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
+              </button>
+            ))}
+          </div>
+        </div>
 
-      {/* Price & Stock */}
-      <div className="mt-4">
-        <p className="text-lg font-semibold">
-          Price:
-          {selectedVariant.discountedPrice ? (
-            <>
-              <span className="line-through text-gray-500 ml-2">
-                ${selectedVariant.price}
+        {/* Product Info */}
+        <div className="w-full lg:w-1/2">
+          <h1 className="text-2xl md:text-3xl font-bold">{product.name}</h1>
+
+          {/* Price */}
+          <div className="flex items-center gap-3 mt-4">
+            <span className="text-2xl md:text-3xl text-orange-500 font-semibold">
+              Rs {selectedVariant.discountedPrice || selectedVariant.price}
+            </span>
+            {selectedVariant.discountedPrice && (
+              <span className="text-lg text-gray-500 line-through">
+                Rs {selectedVariant.price}
               </span>
-              <span className="text-red-500 ml-2">
-                ${selectedVariant.discountedPrice}
-              </span>
-            </>
-          ) : (
-            <span className="ml-2">${selectedVariant.price}</span>
-          )}
-        </p>
-        <p className="text-sm text-gray-600">
-          Stock: {selectedVariant.stock} left
-        </p>
+            )}
+          </div>
+
+          <div className="border-b border-gray-200 my-6"></div>
+
+          {/* Variant Selection */}
+          <div className="space-y-6">
+            {/* Color Selection */}
+            <div>
+              <h3 className="font-medium mb-2">
+                Color: {selectedVariant.color}
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {[...new Set(product.variants.map((v) => v.color))].map(
+                  (color) => (
+                    <button
+                      key={color}
+                      onClick={() => handleVariantChange("color", color)}
+                      className={`w-10 h-10 rounded-full border-2 flex items-center justify-center ${
+                        color === selectedVariant.color
+                          ? "border-black"
+                          : "border-gray-200"
+                      }`}
+                    >
+                      <span
+                        className="w-8 h-8 rounded-full block"
+                        style={{
+                          backgroundColor:
+                            color.toLowerCase() === "#ffffff"
+                              ? "#f3f4f6"
+                              : color,
+                        }}
+                      />
+                    </button>
+                  )
+                )}
+              </div>
+            </div>
+
+            {/* Size Selection */}
+            <div>
+              <h3 className="font-medium mb-2">
+                Size:{" "}
+                {selectedVariant.size === "S"
+                  ? "Small"
+                  : selectedVariant.size === "M"
+                  ? "Medium"
+                  : selectedVariant.size === "L"
+                  ? "Large"
+                  : selectedVariant.size === "XL"
+                  ? "Extra Large"
+                  : selectedVariant.size}
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {product.variants
+                  .filter((v) => v.color === selectedVariant.color)
+                  .map((variant) => (
+                    <button
+                      key={variant.size}
+                      onClick={() => handleVariantChange("size", variant.size)}
+                      className={`px-4 py-2 rounded-md border ${
+                        variant.size === selectedVariant.size
+                          ? "border-black bg-gray-100 font-medium"
+                          : "border-gray-200"
+                      }`}
+                    >
+                      {variant.size}
+                    </button>
+                  ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Product Description */}
+          <div className="mt-8">
+            <h3 className="font-semibold text-lg mb-2">Description</h3>
+            <p className="text-gray-700 whitespace-pre-line">
+              {product.description}
+            </p>
+          </div>
+        </div>
       </div>
-    </div>
+    </main>
   );
 }
 
-export default Product;
+export default ProductDetail;
