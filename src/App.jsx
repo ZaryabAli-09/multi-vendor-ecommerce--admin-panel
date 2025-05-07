@@ -3,7 +3,6 @@ import { Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import Login from "./pages/Auth/Login";
 import DashboardHome from "./pages/Dashboard/DashboardHome";
-import Product from "./pages/Dashboard/ProductManagement/Product";
 import AuthenticatedRoutes from "./components/RoutesWrappers/AuthenticatedRoutes";
 import AdminGateway from "./pages/Auth/AdminGatewayPage";
 import ProductDetail from "./pages/Dashboard/ProductManagement/Product";
