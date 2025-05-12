@@ -53,10 +53,12 @@ const Login = () => {
           <span>
             <AiFillAlipayCircle className="text-3xl text-black" />
           </span>
-          <span>Logo</span>
+          <span> {import.meta.env.VITE_PLATFORM_NAME}</span>
         </div>
 
-        <h1 className="text-2xl">Welcome to Logo Admin Panel!</h1>
+        <h1 className="text-2xl">
+          Welcome to {import.meta.env.VITE_PLATFORM_NAME} Admin Panel!
+        </h1>
         <p className="text-slate-500 text-xs my-1 md:text-sm">
           Enter your credentials to access the dashboard.
         </p>

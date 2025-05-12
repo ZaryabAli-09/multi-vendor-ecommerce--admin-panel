@@ -109,7 +109,9 @@ const Sidebar = ({ activeTab }) => {
       {/* Brand Header */}
       <div className="flex items-center gap-2 mb-8 p-2">
         <MdAdminPanelSettings className="text-2xl text-black" />
-        <span className="font-bold text-lg">LOGO</span>
+        <span className="font-bold text-lg">
+          {import.meta.env.VITE_PLATFORM_NAME}
+        </span>
         <span className="text-xs bg-black text-white px-2 py-1 rounded ml-auto">
           ADMIN
         </span>
