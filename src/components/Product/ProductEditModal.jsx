@@ -100,7 +100,7 @@ const ProductEditModal = ({
   const fetchSingleProduct = async (productId) => {
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/product/single/${productId}`
+        `${import.meta.env.VITE_API_URL}/product/single/seller/${productId}`
       );
       const result = await res.json();
       if (!res.ok) {
