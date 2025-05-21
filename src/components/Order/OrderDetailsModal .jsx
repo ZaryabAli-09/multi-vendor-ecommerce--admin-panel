@@ -11,14 +11,23 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Chip,
 } from "@mui/material";
+import {
+  HiOutlineShoppingBag,
+  HiOutlineUser,
+  HiOutlineMail,
+  HiOutlineCalendar,
+  HiOutlineCreditCard,
+  HiOutlineCash,
+  HiInformationCircle,
+} from "react-icons/hi";
 
 const OrderDetailsModal = ({ open, onClose, orderId }) => {
   const [order, setOrder] = React.useState(null);
 
   React.useEffect(() => {
     if (orderId) {
-      // Fetch order details from the backend
       fetch(`${import.meta.env.VITE_API_URL}/order/${orderId}`, {
         method: "GET",
         credentials: "include",
@@ -39,29 +48,152 @@ const OrderDetailsModal = ({ open, onClose, orderId }) => {
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          width: "90%", // Adjusted for better responsiveness
+          width: "90%",
           maxWidth: 800,
-          maxHeight: "90vh", // Limit height for small screens
+          maxHeight: "90vh",
           bgcolor: "background.paper",
           boxShadow: 24,
           p: 4,
-          overflowY: "auto", // Make the modal scrollable
+          overflowY: "auto",
         }}
       >
-        <Typography variant="h6" gutterBottom>
-          Order Details
-        </Typography>
-        <Typography variant="body1" gutterBottom>
-          Order ID: {order._id}
-        </Typography>
-        <Typography variant="body1" gutterBottom>
-          Customer: {order.orderBy?.name}
-        </Typography>
-        <Typography variant="body1" gutterBottom>
-          Customer Email: {order.orderBy?.email}
-        </Typography>
+        {/* Header Section */}
+        <Box sx={{ mb: 3 }}>
+          <Typography
+            variant="h5"
+            gutterBottom
+            sx={{
+              fontWeight: 600,
+              color: "primary.main",
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+            }}
+          >
+            <HiOutlineShoppingBag size={24} />
+            Order Details
+          </Typography>
 
-        {/* Display Order Items */}
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+              gap: 2,
+              mb: 2,
+            }}
+          >
+            {/* Order Information */}
+            <Box>
+              <Typography variant="subtitle2" color="text.secondary">
+                Order ID
+              </Typography>
+              <Typography variant="body1">{order._id}</Typography>
+            </Box>
+
+            <Box>
+              <Typography variant="subtitle2" color="text.secondary">
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <HiOutlineCalendar size={16} />
+                  Order Date
+                </Box>
+              </Typography>
+              <Typography variant="body1">
+                {new Date(order.createdAt).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </Typography>
+            </Box>
+
+            {/* Customer Information */}
+            <Box>
+              <Typography variant="subtitle2" color="text.secondary">
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <HiOutlineUser size={16} />
+                  Customer
+                </Box>
+              </Typography>
+              <Typography variant="body1">
+                {order.orderBy?.name || "Guest"}
+              </Typography>
+            </Box>
+
+            <Box>
+              <Typography variant="subtitle2" color="text.secondary">
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <HiOutlineMail size={16} />
+                  Contact
+                </Box>
+              </Typography>
+              <Typography variant="body1">
+                {order.orderBy?.email || "No email provided"}
+                {order.orderBy?.phone && (
+                  <Box component="span" sx={{ display: "block", mt: 0.5 }}>
+                    {order.orderBy.phone}
+                  </Box>
+                )}
+              </Typography>
+            </Box>
+
+            {/* Payment Information */}
+            <Box>
+              <Typography variant="subtitle2" color="text.secondary">
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  {order.paymentMethod === "card" ? (
+                    <HiOutlineCreditCard size={16} />
+                  ) : (
+                    <HiOutlineCash size={16} />
+                  )}
+                  Payment Method
+                </Box>
+              </Typography>
+              <Typography variant="body1" sx={{ textTransform: "capitalize" }}>
+                {order.paymentMethod === "card"
+                  ? "Credit Card"
+                  : "Cash on Delivery"}
+                {order.paymentDetails?.transactionId && (
+                  <Box
+                    component="span"
+                    sx={{
+                      display: "block",
+                      fontSize: "0.75rem",
+                      color: "text.secondary",
+                      mt: 0.5,
+                    }}
+                  >
+                    Transaction: {order.paymentDetails.transactionId}
+                  </Box>
+                )}
+              </Typography>
+            </Box>
+
+            {/* Order Status */}
+            <Box>
+              <Typography variant="subtitle2" color="text.secondary">
+                Status
+              </Typography>
+              <Chip
+                label={order.status}
+                size="small"
+                color={
+                  order.status === "delivered"
+                    ? "success"
+                    : order.status === "canceled"
+                    ? "error"
+                    : order.status === "shipped"
+                    ? "info"
+                    : "default"
+                }
+                sx={{ textTransform: "capitalize" }}
+              />
+            </Box>
+          </Box>
+        </Box>
+
+        {/* Order Items Table */}
         <TableContainer component={Paper} sx={{ mt: 4 }}>
           <Table>
             <TableHead>
@@ -69,83 +201,75 @@ const OrderDetailsModal = ({ open, onClose, orderId }) => {
                 <TableCell>Product</TableCell>
                 <TableCell>Variant</TableCell>
                 <TableCell>Quantity</TableCell>
-                <TableCell>Price</TableCell>
-                <TableCell>Discounted Price</TableCell>
-                <TableCell>Total</TableCell>
+                <TableCell>Price (Rs.)</TableCell>
+                <TableCell>Total (Rs.)</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {order.orderItems.map((item) => {
-                // Find the selected variant
-                const selectedVariant = item.product.variants.find(
-                  (variant) =>
-                    variant._id.toString() === item.variantId.toString()
-                );
+              {order?.orderItems?.map((item) => {
+                const isProductDeleted = !item.product;
 
                 return (
                   <TableRow key={item._id}>
                     <TableCell>
                       <Box sx={{ display: "flex", alignItems: "center" }}>
                         <img
-                          src={selectedVariant.images[0].url}
-                          alt={item.product.name}
+                          src={
+                            isProductDeleted
+                              ? "https://placehold.co/50x50?text=Product+Deleted"
+                              : item.productImage ||
+                                "https://placehold.co/50x50"
+                          }
+                          alt={item.productName}
                           style={{
                             width: 50,
                             height: 50,
                             marginRight: 10,
-                            borderRadius: "8px", // Rounded corners for the image
+                            borderRadius: "8px",
+                            opacity: isProductDeleted ? 0.5 : 1,
                           }}
                         />
-                        <Typography variant="body2">
-                          {item.product.name}
-                        </Typography>
+                        <Box>
+                          <Typography variant="body2">
+                            {item.productName}
+                          </Typography>
+                          {isProductDeleted && (
+                            <Chip
+                              label="Product Deleted"
+                              size="small"
+                              color="warning"
+                              icon={<HiInformationCircle size={16} />}
+                              sx={{ mt: 0.5 }}
+                            />
+                          )}
+                        </Box>
                       </Box>
                     </TableCell>
                     <TableCell>
                       <Box sx={{ display: "flex", alignItems: "center" }}>
-                        <Box
-                          sx={{
-                            width: 20,
-                            height: 20,
-                            borderRadius: "50%", // Round shape for color
-                            backgroundColor: selectedVariant.color,
-                            marginRight: 1,
-                          }}
-                        />
+                        {item.variantColor && (
+                          <Box
+                            sx={{
+                              width: 20,
+                              height: 20,
+                              borderRadius: "50%",
+                              backgroundColor: item.variantColor,
+                              marginRight: 1,
+                              opacity: isProductDeleted ? 0.5 : 1,
+                            }}
+                          />
+                        )}
                         <Typography variant="body2">
-                          Size: {selectedVariant.size}
+                          Size: {item.variantSize || "N/A"}
                         </Typography>
                       </Box>
                     </TableCell>
                     <TableCell>{item.quantity}</TableCell>
                     <TableCell>
-                      {selectedVariant.discountedPrice ? (
-                        <>
-                          <span className="line-through opacity-40">
-                            {selectedVariant.price}
-                          </span>{" "}
-                          {selectedVariant.discountedPrice}
-                        </>
-                      ) : (
-                        selectedVariant.price
-                      )}
+                      {item.priceAtPurchase.toLocaleString()}
                     </TableCell>
                     <TableCell>
-                      {selectedVariant.discountedPrice
-                        ? `$${selectedVariant.discountedPrice}`
-                        : "N/A"}
-                    </TableCell>
-                    <TableCell>
-                      {selectedVariant.discountedPrice ? (
-                        <>
-                          <span className="line-through opacity-40">
-                            {selectedVariant.price * item.quantity}
-                          </span>{" "}
-                          {selectedVariant.discountedPrice * item.quantity}
-                        </>
-                      ) : (
-                        selectedVariant.price * item.quantity
-                      )}
+                      {(item.priceAtPurchase * item.quantity).toLocaleString()}
                     </TableCell>
                   </TableRow>
                 );
@@ -154,9 +278,30 @@ const OrderDetailsModal = ({ open, onClose, orderId }) => {
           </Table>
         </TableContainer>
 
+        {/* Order Summary */}
         <Box sx={{ mt: 2, display: "flex", justifyContent: "space-between" }}>
-          <Typography variant="body1">Total: Rs.{order.totalAmount}</Typography>
-          <Typography variant="body1">Status: {order.status}</Typography>
+          <Typography variant="body1" sx={{ fontWeight: 500 }}>
+            Total: Rs. {order.totalAmount.toLocaleString()}
+          </Typography>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Typography variant="body1" sx={{ fontWeight: 500 }}>
+              Status:
+            </Typography>
+            <Chip
+              label={order.status}
+              size="small"
+              color={
+                order.status === "delivered"
+                  ? "success"
+                  : order.status === "canceled"
+                  ? "error"
+                  : order.status === "shipped"
+                  ? "info"
+                  : "default"
+              }
+              sx={{ textTransform: "capitalize" }}
+            />
+          </Box>
         </Box>
 
         <Button

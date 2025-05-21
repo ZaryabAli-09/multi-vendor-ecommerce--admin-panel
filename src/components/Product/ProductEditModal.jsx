@@ -382,6 +382,7 @@ const ProductEditModal = ({
                   value={variant.price}
                   onChange={(e) => handleChange(index, "price", e.target.value)}
                   fullWidth
+                  disabled
                 />
                 <TextField
                   label="Discounted Price"
