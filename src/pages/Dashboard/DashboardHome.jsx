@@ -13,6 +13,7 @@ import AdminSettings from "./AdminManagement";
 import SellerRequests from "./SellerRequests";
 import SupprtAndDisputes from "./SupportAndDisputes";
 import BrandsManagement from "./BrandsManagement";
+import AdminReels from "./Reels";
 
 const DashboardHome = () => {
   const location = useLocation();
@@ -54,6 +55,7 @@ const DashboardHome = () => {
           {tab === "seller-requests" && <SellerRequests />}
           {tab === "support" && <SupprtAndDisputes />}
           {tab === "brands" && <BrandsManagement />}
+          {tab === "reels" && <AdminReels />}
         </div>
       </div>
     </div>

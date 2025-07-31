@@ -10,7 +10,7 @@ import { Provider } from "react-redux";
 import { store, persistor } from "./store/store";
 import { PersistGate } from "redux-persist/integration/react";
 
-document.title = import.meta.env.VITE_PLATFORM_NAME + " " + "ADMIN PANEL";
+document.title = import.meta.env.VITE_PLATFORM_NAME + " " + "Admin";
 
 createRoot(document.getElementById("root")).render(
   <Provider store={store}>

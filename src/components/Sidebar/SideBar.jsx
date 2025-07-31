@@ -27,6 +27,7 @@ import {
 import { MdAdminPanelSettings, MdDashboard } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../store/authReducers";
+import { CiVideoOn } from "react-icons/ci";
 
 // ===== Updated Sidebar Links =====
 const DASHBOARD_SIDEBAR_LINKS = [
@@ -49,6 +50,11 @@ const DASHBOARD_SIDEBAR_LINKS = [
     label: "Products",
     path: "/dashboard?tab=products",
     icon: <HiOutlineCube size={18} />,
+  },
+  {
+    label: "Reels",
+    path: "/dashboard?tab=reels",
+    icon: <CiVideoOn size={18} />,
   },
   {
     label: "Orders",
