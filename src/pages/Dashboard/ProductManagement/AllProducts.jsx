@@ -68,8 +68,6 @@ const AllProducts = () => {
       } else {
         setProducts(result.data.data);
         setTotalPages(Math.ceil(result.data.total / limit)); // Calculate total pages
-        console.log(result.data.total, limit);
-        console.log(totalPages);
       }
     } catch (error) {
       toast.error(error.message);

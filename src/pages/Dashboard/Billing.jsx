@@ -27,8 +27,6 @@ const Billing = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const limit = 10;
 
-  console.log(sellerBillingsInfo);
-
   const fetchAllSellerBillingsInfo = async (page = 1, search = "") => {
     try {
       setIsFetching(true);
