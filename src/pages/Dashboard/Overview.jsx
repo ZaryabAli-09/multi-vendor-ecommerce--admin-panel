@@ -59,7 +59,7 @@ const AdminDashboard = () => {
     start: null,
     end: null,
   });
-
+  console.log(data);
   useEffect(() => {
     fetchDashboardData();
   }, [dateRange]);
@@ -469,6 +469,160 @@ const AdminDashboard = () => {
             </TableBody>
           </Table>
         </TableContainer>
+      </Paper>
+      {/* Reels Overview */}
+      <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
+        Reels Overview
+      </Typography>
+
+      <Paper sx={{ p: 2, mb: 4, borderRadius: 3, boxShadow: 3 }}>
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={6} md={4}>
+            <Paper
+              sx={{
+                p: 2,
+                color: "black",
+                borderRadius: 2,
+                boxShadow: 1,
+              }}
+            >
+              <Typography variant="subtitle1">Total Reels</Typography>
+              <Typography variant="h5" fontWeight="bold">
+                {data.totalReels}
+              </Typography>
+            </Paper>
+          </Grid>
+          <Grid item xs={12} sm={6} md={4}>
+            <Paper
+              sx={{
+                p: 2,
+                color: "black",
+                borderRadius: 2,
+                boxShadow: 1,
+              }}
+            >
+              <Typography variant="subtitle1">Total Likes on Reels</Typography>
+              <Typography variant="h5" fontWeight="bold">
+                {data.totalReelLikes}
+              </Typography>
+            </Paper>
+          </Grid>
+        </Grid>
+
+        {/* Top Reels with Chart and Preview */}
+        <Box mt={4}>
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            Top Reels by Likes
+          </Typography>
+
+          {data.topReels && data.topReels.length > 0 ? (
+            <>
+              {/* Bar Chart */}
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart
+                  data={data.topReels.map((reel) => ({
+                    name: reel.productName,
+                    likes: reel.likes,
+                    brand: reel.uploadedBy?.brandName || "Unknown",
+                  }))}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="name"
+                    interval={0}
+                    angle={-20}
+                    textAnchor="end"
+                  />
+                  <YAxis allowDecimals={false} />
+                  <Tooltip
+                    formatter={(value, name) => {
+                      if (name === "likes") return [`${value}`, "Likes"];
+                      return [value, name];
+                    }}
+                    labelFormatter={(label, payload) => {
+                      const brand = payload?.[0]?.payload?.brand || "Unknown";
+                      return `${label} — Brand: ${brand}`;
+                    }}
+                  />
+                  <Bar dataKey="likes" fill="#1976d2" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+
+              {/* Reels Thumbnails in Flexbox */}
+              <Box mt={4}>
+                <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 500 }}>
+                  Preview Top Reels
+                </Typography>
+
+                <Box
+                  sx={{
+                    display: "flex",
+                    overflowX: "auto",
+                    gap: 2,
+                    pb: 1,
+                    pr: 1,
+                  }}
+                >
+                  {data.topReels.map((reel, index) => (
+                    <Paper
+                      key={index}
+                      elevation={2}
+                      sx={{
+                        minWidth: 140,
+                        p: 1,
+                        borderRadius: 2,
+                        background: "#f9f9f9",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <video
+                        src={reel.videoUrl}
+                        width="120"
+                        height="120"
+                        controls
+                        muted
+                        style={{
+                          borderRadius: 8,
+                          objectFit: "cover",
+                          marginBottom: 6,
+                        }}
+                      />
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontWeight: 500,
+                          color: "#333",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          mb: 0.5,
+                        }}
+                      >
+                        {reel.productName?.slice(0, 30) + "..." || "Untitled"}
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{ lineHeight: 1.2 }}
+                      >
+                        👍 {reel.likes}
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{ display: "block", fontSize: "11px" }}
+                      >
+                        {reel.uploadedBy?.brandName || "Unknown Brand"}
+                      </Typography>
+                    </Paper>
+                  ))}
+                </Box>
+              </Box>
+            </>
+          ) : (
+            renderNoDataMessage("No top reels data available!")
+          )}
+        </Box>
       </Paper>
       {/* Customer Insights */}
       <h2 className="text-xl md:text-2xl mb-5 ml-5"> Customer Insights</h2>
