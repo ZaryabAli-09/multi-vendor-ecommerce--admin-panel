@@ -59,7 +59,6 @@ const AdminDashboard = () => {
     start: null,
     end: null,
   });
-  console.log(data);
   useEffect(() => {
     fetchDashboardData();
   }, [dateRange]);

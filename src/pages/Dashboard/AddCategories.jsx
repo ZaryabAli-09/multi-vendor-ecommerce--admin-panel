@@ -33,7 +33,6 @@ const AddCategories = () => {
       toast.error(error.message);
     }
   };
-  console.log(allCategories);
   const handleCategoryChange = (e, level) => {
     const selectedId = e.target.value;
     let selectedCategory;

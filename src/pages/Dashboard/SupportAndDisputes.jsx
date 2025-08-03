@@ -50,7 +50,6 @@ const SupportAndDisputes = () => {
         toast.error(data.message || "Failed to fetch disputes");
       }
     } catch (error) {
-      console.error(error);
       toast.error("An error occurred while fetching disputes");
     } finally {
       setLoading(false);
@@ -86,7 +85,6 @@ const SupportAndDisputes = () => {
         toast.error(data.message || "Failed to update status");
       }
     } catch (error) {
-      console.error(error);
       toast.error("An error occurred while updating status");
     } finally {
       setUpdating(false);
